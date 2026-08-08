@@ -4,19 +4,16 @@ import view from "./helper/view.js";
 import i18next from "i18next";
 import ru from "./localisation/ru.js";
 import parser from "./helper/parser.js";
-import posts from "./components/posts.js";
 
 export default async () => {
-  const bible = await i18next.createInstance();
+  const bible = i18next.createInstance();
 
-  bible
-    .init({
-      lng: "ru",
-      resources: {
-        ru,
-      },
-    })
-    .then(console.log(bible));
+  await bible.init({
+    lng: "ru",
+    resources: {
+      ru,
+    },
+  });
 
   const rssForm = document.querySelector(".rss-form");
 
@@ -30,18 +27,19 @@ export default async () => {
 
   const state = {
     form: {
-      //ошибки отправки формы (пустая, невалидная ссылка)
-      status: "", //invalid, empty
+      status: "", // invalid, empty, valid
       input: false,
     },
     app: {
-      //ошибки приложения (ссылка уже есть, не является RSS и т. д.)
-      status: "", // exist, notRSS
+      status: "", // exist, notRSS, network
       input: false,
     },
     posts: [],
     feeds: [],
-    modal: { open: false, activePostId: null },
+    modal: {
+      open: false,
+      activePostId: null,
+    },
     viewedPost: [],
   };
 
@@ -58,25 +56,52 @@ export default async () => {
     try {
       const validUrl = await schema.validate(info);
 
-      fetch(
-        `https://allorigins.hexlet.app/get?url=${encodeURIComponent(validUrl)}`
-      )
-        .then((response) => {
-          if (response.ok) return response.json();
-          throw new Error("Network response was not ok.");
-        })
-        .then((data) => {
-          const elements = parser(data.contents);
+      const update = () => {
+        fetch(
+          `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
+            validUrl
+          )}`
+        )
+          .then((response) => {
+            if (response.ok) {
+              return response.json();
+            }
 
-          watchedState.feeds.push(elements.feeds);
-          watchedState.posts = [...elements.posts, ...watchedState.posts];
+            throw new Error("network");
+          })
+          .then((data) => {
+            const parsedElements = parser(data.contents);
 
-          console.log(watchedState);
-        });
+            if (!parsedElements) {
+              throw new Error("notRSS");
+            }
 
-      console.log(validUrl);
+            watchedState.feeds.push(parsedElements.feeds);
+
+            watchedState.posts = [
+              ...parsedElements.posts,
+              ...watchedState.posts,
+            ];
+
+            console.log(watchedState);
+
+            setTimeout(() => {
+              watchedState.posts = [
+                ...parsedElements.posts,
+                ...watchedState.posts,
+              ];
+            }, 5000);
+          })
+          .catch((error) => {
+            watchedState.app.status = error.message;
+            watchedState.app.input = true;
+          });
+      };
+
       watchedState.form.status = "valid";
       watchedState.form.input = false;
+
+      update();
     } catch (error) {
       watchedState.form.status = error.message;
       watchedState.form.input = true;
