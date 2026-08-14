@@ -65,11 +65,11 @@ export default async () => {
       }
 
       const loadFeeds = () => {
-        fetch(
-          `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
-            validUrl
-          )}`
-        )
+        const url = new URL("https://allorigins.hexlet.app/get");
+        url.searchParams.set("disableCache", "true");
+        url.searchParams.set("url", validUrl);
+
+        fetch(url)
           .then((response) => {
             if (response.ok) {
               return response.json();
@@ -97,64 +97,64 @@ export default async () => {
 
             console.log(watchedState);
           })
-          .catch((error) => {
-            watchedState.form.status = error.message;
+          .catch(() => {
+            watchedState.form.status = "networkError";
             watchedState.form.input = true;
           });
-      };
-
-      const updatePosts = () => {
-        watchedState.feeds.forEach((feed) => {
-          fetch(
-            `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(
-              feed.url
-            )}`
-          )
-            .then((response) => {
-              if (response.ok) {
-                return response.json();
-              }
-
-              throw new Error("network");
-            })
-            .then((data) => {
-              const parsedElements = parser(data.contents);
-
-              const newPosts = parsedElements.posts.filter(
-                (post) =>
-                  !watchedState.posts.some(
-                    (currentPost) => currentPost.link === post.link
-                  )
-              );
-              watchedState.posts.push(...newPosts);
-            });
-        });
-
-        setTimeout(updatePosts, 5000);
       };
 
       watchedState.form.status = "valid";
       watchedState.form.input = false;
 
-      elements.postsForm.addEventListener("click", (event) => {
-        const viewButton = event.target.closest(".btn-sm");
-
-        if (!viewButton) {
-          return;
-        }
-
-        watchedState.modal.open = true;
-        watchedState.modal.activePostId = viewButton.dataset.id;
-        watchedState.viewedPost.push(viewButton.dataset.id);
-      });
-
       loadFeeds();
-      updatePosts();
     } catch (error) {
       watchedState.form.status = error.message;
       watchedState.form.input = true;
     }
   });
 
+  elements.postsForm.addEventListener("click", (event) => {
+    const viewButton = event.target.closest(".btn-sm");
+
+    if (!viewButton) {
+      return;
+    }
+
+    watchedState.modal.open = true;
+    watchedState.modal.activePostId = viewButton.dataset.id;
+    watchedState.viewedPost.push(viewButton.dataset.id);
+  });
+
+  const updatePosts = () => {
+    watchedState.feeds.forEach((feed) => {
+      fetch(
+        `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(
+          feed.url
+        )}`
+      )
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+
+          throw new Error("network");
+        })
+        .then((data) => {
+          const parsedElements = parser(data.contents);
+
+          const newPosts = parsedElements.posts.filter(
+            (post) =>
+              !watchedState.posts.some(
+                (currentPost) => currentPost.link === post.link
+              )
+          );
+          watchedState.posts.push(...newPosts);
+        });
+    });
+
+    setTimeout(updatePosts, 5000);
+  };
+
+  updatePosts();
   view(watchedState, elements, bible);
 };

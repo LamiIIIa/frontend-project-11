@@ -14,7 +14,7 @@ export default function fids(f, wrapper) {
   fidMass.appendChild(title);
   f.forEach((el) => {
     //f - массив, el - объект {title: , subtitle: , id: }
-    fid(el.title, el.subtitle, fidMass);
+    fid(el.title, el.description, fidMass);
   });
   wrapper.appendChild(fidMass);
 }

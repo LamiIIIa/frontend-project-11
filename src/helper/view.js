@@ -37,7 +37,7 @@ export default (watchedState, elements, bible) => {
     console.log("check posts");
   });
 
-  subscribe(watchedState, () => {
+  subscribe(watchedState.modal, () => {
     const modalSnap = snapshot(watchedState.modal);
     const postsSnap = snapshot(watchedState.posts);
 
@@ -46,11 +46,11 @@ export default (watchedState, elements, bible) => {
     );
 
     const onClose = () => {
-      watchedState.open = false;
-      watchedState.activePostId = "";
+      watchedState.modal.open = false;
+      watchedState.modal.activePostId = null;
     };
 
-    if (modalSnap.open === true && activePost) {
+    if (modalSnap.open && activePost) {
       modal(
         activePost.title,
         activePost.description,
