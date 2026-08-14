@@ -1,4 +1,4 @@
-export default function post(feedID, id, title, description, href, wrapper) {
+export default function post(id, title, href, isViewed, wrapper) {
   const doPost = document.createElement("div");
   doPost.classList.add(
     "post",
@@ -13,9 +13,13 @@ export default function post(feedID, id, title, description, href, wrapper) {
   botPost.classList.add("btn", "btn-outline-primary", "btn-sm");
   botPost.dataset.id = id;
   const link = document.createElement("a");
-  link.classList.add("fw-bold");
   link.innerText = title;
   link.href = href;
+  if (isViewed) {
+    link.classList.add("fw-normal", "link-secondary");
+  } else {
+    link.classList.add("fw-bold");
+  }
   botPost.innerText = "Просмотр";
   doPost.appendChild(link);
   doPost.appendChild(botPost);

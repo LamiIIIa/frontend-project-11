@@ -58,6 +58,12 @@ export default async () => {
     try {
       const validUrl = await schema.validate(info);
 
+      const isExist = watchedState.feeds.some((feed) => feed.url === validUrl);
+
+      if (isExist) {
+        throw new Error("exist");
+      }
+
       const loadFeeds = () => {
         fetch(
           `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
@@ -69,13 +75,13 @@ export default async () => {
               return response.json();
             }
 
-            throw new Error("network");
+            throw new Error("networkError");
           })
           .then((data) => {
             const parsedElements = parser(data.contents);
 
             if (!parsedElements) {
-              throw new Error("notRSS");
+              throw new Error("invalidRSS");
             }
 
             watchedState.feeds.push({ ...parsedElements.feeds, url: validUrl });
@@ -85,11 +91,15 @@ export default async () => {
               ...watchedState.posts,
             ];
 
+            watchedState.form.status = "sucsess";
+            watchedState.form.input = false;
+            elements.rssForm.reset();
+
             console.log(watchedState);
           })
           .catch((error) => {
-            watchedState.app.status = error.message;
-            watchedState.app.input = true;
+            watchedState.form.status = error.message;
+            watchedState.form.input = true;
           });
       };
 
@@ -135,6 +145,7 @@ export default async () => {
 
         watchedState.modal.open = true;
         watchedState.modal.activePostId = viewButton.dataset.id;
+        watchedState.viewedPost.push(viewButton.dataset.id);
       });
 
       loadFeeds();

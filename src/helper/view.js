@@ -12,11 +12,10 @@ export default (watchedState, elements, bible) => {
 
     if (snap.input) {
       elements.input.classList.add("is-invalid");
-      status(snap.status, elements.rssCont, bible);
     } else {
       elements.input.classList.remove("is-invalid");
     }
-
+    status(snap.status, elements.rssCont, bible);
     console.log("check input");
   });
 
@@ -31,8 +30,9 @@ export default (watchedState, elements, bible) => {
   subscribe(watchedState, () => {
     //почему не отрабатывает watchedState.posts и watchedState.feeds
     const snap = snapshot(watchedState.posts);
+    const viewedSnap = snapshot(watchedState.viewedPost);
 
-    posts(snap, elements.postsForm);
+    posts(snap, viewedSnap, elements.postsForm);
 
     console.log("check posts");
   });
@@ -46,8 +46,8 @@ export default (watchedState, elements, bible) => {
     );
 
     const onClose = () => {
-      modalSnap.open = false;
-      modalSnap.activePostId = "";
+      watchedState.open = false;
+      watchedState.activePostId = "";
     };
 
     if (modalSnap.open === true && activePost) {

@@ -2,6 +2,11 @@ import fid from "./fid.js";
 
 export default function fids(f, wrapper) {
   wrapper.innerHTML = "";
+
+  if (f.length === 0) {
+    return;
+  }
+
   const title = document.createElement("h2");
   title.innerText = "Фиды";
   title.classList.add("h4");
