@@ -97,8 +97,9 @@ export default async () => {
 
             console.log(watchedState);
           })
-          .catch(() => {
-            watchedState.form.status = "networkError";
+          .catch((error) => {
+            watchedState.form.status =
+              error.message === "invalidRSS" ? "invalidRSS" : "networkError";
             watchedState.form.input = true;
           });
       };

@@ -1,10 +1,10 @@
 export default function post(id, title, href, isViewed, wrapper) {
-  const doPost = document.createElement("div");
+  const doPost = document.createElement("li");
   doPost.classList.add(
     "post",
     "d-flex",
     "justify-content-between",
-    "aling-items-start",
+    "align-items-start",
     "border-0",
     "border-end-0",
     "mt-3"
