@@ -2,6 +2,7 @@ import { subscribe, snapshot } from "valtio/vanilla";
 import status from "../components/status";
 import posts from "../components/posts";
 import fids from "../components/fids";
+import modal from "../components/modal";
 
 export default (watchedState, elements, bible) => {
   console.log("hello!");
@@ -34,5 +35,29 @@ export default (watchedState, elements, bible) => {
     posts(snap, elements.postsForm);
 
     console.log("check posts");
+  });
+
+  subscribe(watchedState, () => {
+    const modalSnap = snapshot(watchedState.modal);
+    const postsSnap = snapshot(watchedState.posts);
+
+    const activePost = postsSnap.find(
+      (post) => post.id === modalSnap.activePostId
+    );
+
+    const onClose = () => {
+      modalSnap.open = false;
+      modalSnap.activePostId = "";
+    };
+
+    if (modalSnap.open === true && activePost) {
+      modal(
+        activePost.title,
+        activePost.description,
+        activePost.link,
+        bible,
+        onClose
+      );
+    }
   });
 };

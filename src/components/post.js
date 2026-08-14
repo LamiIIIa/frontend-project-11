@@ -11,6 +11,7 @@ export default function post(feedID, id, title, description, href, wrapper) {
   );
   const botPost = document.createElement("button");
   botPost.classList.add("btn", "btn-outline-primary", "btn-sm");
+  botPost.dataset.id = id;
   const link = document.createElement("a");
   link.classList.add("fw-bold");
   link.innerText = title;

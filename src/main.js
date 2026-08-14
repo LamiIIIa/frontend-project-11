@@ -23,6 +23,8 @@ export default async () => {
     input: rssForm.querySelector("#rss-input"),
     feedsForm: document.querySelector(".feeds"),
     postsForm: document.querySelector(".posts"),
+    app: document.querySelector("#app"),
+    modalForm: document.querySelector("#app"),
   };
 
   const state = {
@@ -56,7 +58,7 @@ export default async () => {
     try {
       const validUrl = await schema.validate(info);
 
-      const update = () => {
+      const loadFeeds = () => {
         fetch(
           `https://allorigins.hexlet.app/get?url=${encodeURIComponent(
             validUrl
@@ -76,7 +78,7 @@ export default async () => {
               throw new Error("notRSS");
             }
 
-            watchedState.feeds.push(parsedElements.feeds);
+            watchedState.feeds.push({ ...parsedElements.feeds, url: validUrl });
 
             watchedState.posts = [
               ...parsedElements.posts,
@@ -84,13 +86,6 @@ export default async () => {
             ];
 
             console.log(watchedState);
-
-            setTimeout(() => {
-              watchedState.posts = [
-                ...parsedElements.posts,
-                ...watchedState.posts,
-              ];
-            }, 5000);
           })
           .catch((error) => {
             watchedState.app.status = error.message;
@@ -98,10 +93,52 @@ export default async () => {
           });
       };
 
+      const updatePosts = () => {
+        watchedState.feeds.forEach((feed) => {
+          fetch(
+            `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(
+              feed.url
+            )}`
+          )
+            .then((response) => {
+              if (response.ok) {
+                return response.json();
+              }
+
+              throw new Error("network");
+            })
+            .then((data) => {
+              const parsedElements = parser(data.contents);
+
+              const newPosts = parsedElements.posts.filter(
+                (post) =>
+                  !watchedState.posts.some(
+                    (currentPost) => currentPost.link === post.link
+                  )
+              );
+              watchedState.posts.push(...newPosts);
+            });
+        });
+
+        setTimeout(updatePosts, 5000);
+      };
+
       watchedState.form.status = "valid";
       watchedState.form.input = false;
 
-      update();
+      elements.postsForm.addEventListener("click", (event) => {
+        const viewButton = event.target.closest(".btn-sm");
+
+        if (!viewButton) {
+          return;
+        }
+
+        watchedState.modal.open = true;
+        watchedState.modal.activePostId = viewButton.dataset.id;
+      });
+
+      loadFeeds();
+      updatePosts();
     } catch (error) {
       watchedState.form.status = error.message;
       watchedState.form.input = true;

@@ -1,6 +1,9 @@
-export default (feedID, id, title, description, href, bible, wrapper) => {
-  wrapper.innerHTML = "";
-  const parent = document.querySelector("#app");
+export default (title, description, href, bible, onClose) => {
+  const oldModal = document.querySelector("#modal");
+
+  if (oldModal) {
+    oldModal.remove();
+  }
 
   const modalField = document.createElement("div");
   const modalDialog = document.createElement("div");
@@ -16,7 +19,7 @@ export default (feedID, id, title, description, href, bible, wrapper) => {
   const readBut = document.createElement("a");
   const closeButFoot = document.createElement("button");
 
-  modalField.classList.add("modal", "fade");
+  modalField.classList.add("modal", "fade", "show");
   modalField.setAttribute("id", "modal");
   modalField.style.display = "block";
   modalDialog.classList.add("modal-dialog");
@@ -45,7 +48,13 @@ export default (feedID, id, title, description, href, bible, wrapper) => {
   closeButFoot.setAttribute("data-bs-dismiss", "modal");
   closeButFoot.innerText = bible.t("buttons.close");
 
-  parent.appendChild(modalField);
+  const closeModal = () => {
+    modalField.remove();
+    onClose();
+  };
+
+  closeButTop.addEventListener("click", closeModal);
+  closeButFoot.addEventListener("click", closeModal);
 
   modalField.appendChild(modalDialog);
 
@@ -60,4 +69,6 @@ export default (feedID, id, title, description, href, bible, wrapper) => {
 
   modalFooter.appendChild(readBut);
   modalFooter.appendChild(closeButFoot);
+
+  document.body.prepend(modalField);
 };
