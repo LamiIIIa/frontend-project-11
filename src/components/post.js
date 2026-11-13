@@ -15,6 +15,7 @@ export default function post(id, title, href, isViewed, wrapper) {
   const link = document.createElement("a");
   link.innerText = title;
   link.href = href;
+  link.dataset.seen = String(isViewed);
   if (isViewed) {
     link.classList.add("fw-normal", "link-secondary");
   } else {
