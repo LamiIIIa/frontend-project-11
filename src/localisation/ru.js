@@ -9,7 +9,7 @@ export default {
       networkError: "Ошибка сети",
     },
     buttons: {
-      add: "Добавить",
+      name: "Добавить",
       view: "Просмотр",
       close: "Закрыть",
       read: "Читать полностью",
