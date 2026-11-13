@@ -16,6 +16,7 @@ export default function post(id, title, href, isViewed, wrapper) {
   link.innerText = title;
   link.href = href;
   link.dataset.seen = String(isViewed);
+  link.setAttribute("aria-label", "title");
   if (isViewed) {
     link.classList.add("fw-normal", "link-secondary");
   } else {

@@ -21,6 +21,7 @@ export default (title, description, href, bible, onClose) => {
 
   modalField.classList.add("modal", "fade", "show");
   modalField.setAttribute("id", "modal");
+  modalField.setAttribute("role", "dialog");
   modalField.style.display = "block";
   modalDialog.classList.add("modal-dialog");
   modalContent.classList.add("modal-content");
