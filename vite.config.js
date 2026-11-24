@@ -2,6 +2,7 @@ import { resolve } from "path";
 
 export default {
   root: resolve(__dirname),
+  base: "./",
   build: {
     outDir: "../dist",
     emptyOutDir: true,
